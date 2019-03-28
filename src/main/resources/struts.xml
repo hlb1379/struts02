@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+        "http://struts.apache.org/dtds/struts-2.5.dtd">
+
+<struts>
+    <!--设置文件上传的大小-->
+    <constant name="struts.multipart.maxSize" value="7097152"/>
+
+    <!--允许静态方法调用-->
+    <constant name="struts.ognl.allowStaticMethodAccess" value="true"/>
+    <package name="pk1" extends="struts-default" namespace="/">
+        <global-results>
+            <result name="input">error.jsp</result>
+        </global-results>
+
+        <global-allowed-methods>add</global-allowed-methods>
+        <!--配置全局视图-->
+        <action name="test_add" class="com.hlb.web.Action01" method="add">
+            <result>su.jsp</result>
+        </action>
+        <action name="test_add_2" class="com.hlb.web.Action02" method="add">
+            <result>/su.jsp</result>
+        </action>
+        <action name="test_*" class="com.hlb.web.Action02" method="{1}">
+            <allowed-methods>m1,m2,m3,m4,m5,m6</allowed-methods>
+        </action>
+        <action name="test_batch_del" class="com.hlb.web.Action03" method="batchDel">
+            <result>/su.jsp</result>
+        </action>
+        <action name="toat_batch_add" class="com.hlb.web.Action04" method="btadd">
+            <result>/su.jsp</result>
+        </action>
+        <action name="action05_*" class="com.hlb.web.Action05" method="{1}">
+            <result>info.jsp</result>
+            <result name="error">error.jsp</result>
+            <allowed-methods>m1,m2,m3,m4,m5</allowed-methods>
+        </action>
+        <action name="action06_*" class="com.hlb.web.Action06" method="{1}">
+            <result>info.jsp</result>
+            <result name="error">error.jsp</result>
+            <allowed-methods>m1,m2,m3,m4,m5</allowed-methods>
+        </action>
+        <action name="api01_*" class="com.hlb.web.Api01" method="{1}">
+            <result>info.jsp</result>
+            <result name="error">error.jsp</result>
+            <allowed-methods>m1,m2,m3,m4,m5</allowed-methods>
+        </action>
+
+
+    </package>
+
+    <package name="pk2" extends="struts-default" namespace="/">
+        <interceptors>
+            <interceptor name="ic01" class="com.hlb.web.interceptor.MyInterceptor">
+                <param name="excludeMethods">execute</param>
+            </interceptor>
+            <interceptor name="loginInterceptor" class="com.hlb.web.interceptor.LoginInterceptor">
+                <param name="excludeMethods">login,execute</param>
+            </interceptor>
+            <interceptor-stack name="sysStack">
+                <interceptor-ref name="ic01"/>
+                <interceptor-ref name="defaultStack"/>
+                <interceptor-ref name="loginInterceptor"/>
+            </interceptor-stack>
+        </interceptors>
+
+        <default-interceptor-ref name="sysStack"/>
+        <global-allowed-methods>toJsp,m1,m2,m3,m4,m5,upload</global-allowed-methods>
+        <action name="dpaction_*" class="com.hlb.web.DisptcherAction" method="{1}">
+            <!--<result type="redirect">info2.jsp</result>-->
+            <!--<result type="chain">-->
+            <result type="redirectAction">
+                <param name="namespace">/hello</param>
+                <param name="actionName">toAction_toJsp</param>
+            </result>
+
+        </action>
+
+        <action name="uploadAction" class="com.hlb.web.UploadAction" method="upload">
+            <result name="input">error.jsp</result>
+            <interceptor-ref name="ic01"/>
+        </action>
+        <action name="downloadAction" class="com.hlb.web.DownloadAction" method="down">
+            <interceptor-ref name="ic01"/>
+            <result type="stream">
+                <!--下载文件的类型-->
+                <param name="contentType">image/jpeg</param>
+                <!--下载文件流-->
+                <param name="inputName">${in}</param>
+                <param name="contentDisposition">
+                    attachment;filename="aaa.jpg"
+                </param>
+                <param name="bufferSize">1024</param>
+            </result>
+        </action>
+        <action name="interAction" class="com.hlb.web.ActionInter" method="m1">
+
+        </action>
+
+        <action name="ognlAction" class="com.hlb.web.OgnlAction">
+            <result>ognl.jsp</result>
+        </action>
+
+        <action name="loginAction" class="com.hlb.web.ActionInter" method="login"/>
+
+        <action name="tagAction" class="com.hlb.web.TagAction">
+            <result>tag_ui.jsp</result>
+        </action>
+    </package>
+
+
+
+    <package name="pk3" extends="pk2" namespace="/hello">
+        <action name="toAction_*" class="com.hlb.web.DpAction" method="{1}">
+            <result>info2.jsp</result>
+        </action>
+    </package>
+
+
+
+    <package name="pk4" extends="struts-default" namespace="/">
+        <action name="actionTagAction1" class="com.hlb.web.ActionTagAction">
+            <result name="done">success.jsp</result>
+        </action>
+        <action name="actionTagAction2" class="com.hlb.web.ActionTagAction" method="doDefault">
+            <result name="done">success.jsp</result>
+        </action>
+    </package>
+</struts>
